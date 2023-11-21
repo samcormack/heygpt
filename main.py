@@ -21,8 +21,8 @@ async def listen():
         input=True,
         frames_per_buffer=porcupine.frame_length,
     )
+    print("Listening...")
     while True:
-        print(porcupine.frame_length)
         pcm = stream.read(porcupine.frame_length // 2)
         keyword_index = porcupine.process(pcm)
         if keyword_index >= 0:
