@@ -4,6 +4,8 @@ import pyaudio
 import asyncio
 from dotenv import load_dotenv
 
+from audio.input import wait_for_keyword, record
+
 load_dotenv(".env.local")
 
 PORCUPINE_ACCESS_KEY = os.getenv("PORCUPINE_ACCESS_KEY")
@@ -11,23 +13,19 @@ PORCUPINE_ACCESS_KEY = os.getenv("PORCUPINE_ACCESS_KEY")
 
 async def listen():
     porcupine = pvporcupine.create(
-        keywords=["porcupine"], access_key=PORCUPINE_ACCESS_KEY
+        keywords=["porcupine", "bumblebee"], access_key=PORCUPINE_ACCESS_KEY
     )
     pa = pyaudio.PyAudio()
-    stream = pa.open(
-        format=pyaudio.paInt16,
-        channels=1,
-        rate=porcupine.sample_rate,
-        input=True,
-        frames_per_buffer=porcupine.frame_length,
-    )
+
+    state = "waiting"
     print("Listening...")
     while True:
-        pcm = stream.read(porcupine.frame_length // 2)
-        keyword_index = porcupine.process(pcm)
-        if keyword_index >= 0:
-            print("Keyword detected!")
-            # do something when keyword is detected
+        if state == "waiting":
+            state = wait_for_keyword(porcupine, pa)
+        if state == "listening":
+            print("Recording...")
+            state = record(pa)
+
         await asyncio.sleep(0)
 
 
