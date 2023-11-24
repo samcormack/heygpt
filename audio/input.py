@@ -19,11 +19,13 @@ def wait_for_keyword(porcupine, pa):
         if keyword_index >= 0:
             print("Keyword detected!")
             # do something when keyword is detected
+            stream.stop_stream()
+            stream.close()
             return "listening"
     return "waiting"
 
 
-def record(pa):
+def record(pa, handle_audio):
     """Record to a wave file until 3 seconds of silence"""
     chunk_size = 1024
     silence_threshold = 500
@@ -52,12 +54,6 @@ def record(pa):
             break
     stream.stop_stream()
     stream.close()
-    # Write frames to wave file
-    wf = wave.open("output.wav", "wb")
-    wf.setnchannels(1)
-    wf.setsampwidth(pa.get_sample_size(pyaudio.paInt16))
-    wf.setframerate(sample_rate)
-    wf.writeframes(b"".join(frames))
-    wf.close()
+    handle_audio(b"".join(frames))
     print("Done recording")
-    return "waiting"
+    return "awaiting-response"

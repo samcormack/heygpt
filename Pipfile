@@ -8,6 +8,7 @@ pvporcupine = "*"
 pyaudio = "*"
 python-dotenv = "*"
 numpy = "*"
+openai = "*"
 
 [dev-packages]
 black = "*"
